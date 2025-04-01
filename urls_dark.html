@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centralizador de URLs</title>
+    <style>
+        :root {
+            /* Colores base modo oscuro */
+            --bg-dark: #121212;
+            --card-dark: #1e1e1e;
+            --text-dark: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-dark: #333;
+            
+            /* Colores categorías */
+            --prod-color: #ff6b6b;
+            --dev-color: #51cf66;
+            --db-color: #cc5de8;
+            --api-color: #339af0;
+            --logs-color: #ff922b;
+            --page-color: #20c997;
+            --link-color: #74b9ff;
+            
+            /* Sombras */
+            --shadow: 0 4px 12px rgba(0,0,0,0.25);
+            --shadow-hover: 0 6px 16px rgba(0,0,0,0.3);
+            
+            /* Transiciones */
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 0 0 30px;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #74b9ff, #a29bfe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .project-card {
+            background: var(--card-dark);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid var(--border-dark);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .project-header {
+            background: linear-gradient(135deg, #2d3436, #34495e);
+            color: white;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-dark);
+        }
+        
+        .project-header::before {
+            content: "📦";
+            margin-right: 12px;
+            font-size: 1.2rem;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
+        
+        .environment {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-dark);
+        }
+        
+        .environment:last-child {
+            border-bottom: none;
+        }
+        
+        .env-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .env-prod { 
+            background: var(--prod-color);
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+        
+        .env-dev { 
+            background: var(--dev-color);
+            box-shadow: 0 2px 8px rgba(81, 207, 102, 0.3);
+        }
+        
+        .env-label {
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .url-list {
+            margin-left: 8px;
+        }
+        
+        .url-item {
+            margin-bottom: 16px;
+            padding-left: 8px;
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+        
+        .url-item:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: currentColor;
+            border-radius: 2px;
+        }
+        
+        .url-db { color: var(--db-color); }
+        .url-api { color: var(--api-color); }
+        .url-logs { color: var(--logs-color); }
+        .url-page { color: var(--page-color); }
+        
+        .url-icon {
+            margin-right: 12px;
+            margin-top: 2px;
+            font-size: 1.2rem;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        }
+        
+        .url-content {
+            flex: 1;
+        }
+        
+        .url-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .url-value {
+            word-break: break-all;
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: block;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            color: var(--link-color);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .url-value:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 1px;
+            background: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        
+        .url-value:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: currentColor;
+        }
+        
+        .url-value:hover:before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        /* Efecto de brillo al pasar el mouse */
+        .project-card:hover .url-icon {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+            50% { filter: drop-shadow(0 0 6px currentColor); }
+            100% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Centralizador de Recursos</h1>
+
+    <div class="projects-grid">
+        <!-- Proyecto 1 -->
+        <div class="project-card">
+            <div class="project-header">AUTOCORE</div>
+            <div class="environment">
+		<div class="url-item url-git">
+                    <div class="url-icon">🔌</div>
+                    <div class="url-content">
+                        <div class="url-title">Gitlab</div>
+                        <a href="https://git.heippi.com/autocore/backend-fase-1" target="_blank" class="url-value">https://git.heippi.com/autocore/backend-fase-1</a>
+                    </div>
+                </div>
+		</div>
+            <!-- Ambiente PROD -->
+            <div class="environment">
+                <div class="env-header">
+                    <span class="env-label env-prod">Producción</span>
+                </div>
+                <div class="url-list">
+		
+
+                    <div class="url-item url-db">
+                        <div class="url-icon">🗄️</div>
+                        <div class="url-content">
+                            <div class="url-title">Base de Datos</div>
+                            <a href="https://pgadmin-autocore.heippi.com/browser/" target="_blank" class="url-value">https://pgadmin-autocore.heippi.com/browser/</a>
+                        </div>
+                    </div>
+                    <div class="url-item url-api">
+                        <div class="url-icon">🔌</div>
+                        <div class="url-content">
+                            <div class="url-title">Portainer</div>
+                            <a href="https://portainer-autocore.heippi.com/#!/auth" target="_blank" class="url-value">https://portainer-autocore.heippi.com/#!/auth</a>
+                        </div>
+                    </div>
+                    <div class="url-item url-page">
+                        <div class="url-icon">🌐</div>
+                        <div class="url-content">
+                            <div class="url-title">Aplicación Principal</div>
+                            <a href="https://app.autocore.pro/" target="_blank" class="url-value">https://app.autocore.pro/</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ambiente DEV -->
+            <div class="environment">
+                <div class="env-header">
+                    <span class="env-label env-dev">Desarrollo</span>
+                </div>
+                <div class="url-list">
+                    <div class="url-item url-db">
+                        <div class="url-icon">🗄️</div>
+                        <div class="url-content">
+                            <div class="url-title">Base de Datos</div>
+                            <a href="jdbc:mysql://db-dev.ecom.com:3306/dev_db" target="_blank" class="url-value">jdbc:mysql://db-dev.ecom.com:3306/dev_db</a>
+                        </div>
+                    </div>
+                    <div class="url-item url-api">
+                        <div class="url-icon">🔌</div>
+                        <div class="url-content">
+                            <div class="url-title">API Sandbox</div>
+                            <a href="https://api-dev.ecom.com/v2" target="_blank" class="url-value">https://api-dev.ecom.com/v2</a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Proyecto 2 -->
+        <div class="project-card">
+            <div class="project-header">Portal Interno</div>
+            
+            <!-- Ambiente PROD -->
+            <div class="environment">
+                <div class="env-header">
+                    <span class="env-label env-prod">Producción</span>
+                </div>
+                <div class="url-list">
+                    <div class="url-item url-page">
+                        <div class="url-icon">🌐</div>
+                        <div class="url-content">
+                            <div class="url-title">Panel de Administración</div>
+                            <a href="https://portal.empresa.com/admin" target="_blank" class="url-value">https://portal.empresa.com/admin</a>
+                        </div>
+                    </div>
+                    <div class="url-item url-logs">
+                        <div class="url-icon">📊</div>
+                        <div class="url-content">
+                            <div class="url-title">Sistema de Logs</div>
+                            <a href="https://logs.empresa.com/app/kibana" target="_blank" class="url-value">https://logs.empresa.com/app/kibana</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ambiente DEV -->
+            <div class="environment">
+                <div class="env-header">
+                    <span class="env-label env-dev">Desarrollo</span>
+                </div>
+                <div class="url-list">
+                    <div class="url-item url-page">
+                        <div class="url-icon">🌐</div>
+                        <div class="url-content">
+                            <div class="url-title">Entorno Staging</div>
+                            <a href="https://staging.portal.empresa.com" target="_blank" class="url-value">https://staging.portal.empresa.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
